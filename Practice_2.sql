@@ -8,7 +8,7 @@ select count(city) - count(distinct city) from station
 select ceiling (avg(salary) - avg(replace (salary, 0, ''))) from employees
 
 --- ex4: datalemur-alibaba-compressed-mean
-SELECT ROUND(SUM(item_count::DECIMAL*order_occurrences)/SUM(order_occurrences),1) AS mean FROM items_per_order
+SELECT ROUND(cast(sum(item_count * order_occurrences)/sum(order_occurrences) as decimal),1) FROM items_per_order;
 
 --- ex5: datalemur-matching-skills
 SELECT candidate_id FROM candidates WHERE skill IN ('Python', 'Tableau', 'PostgreSQL') 
