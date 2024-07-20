@@ -123,3 +123,22 @@ LIMIT 1);
 
 
 --- ex12: leetcode-who-has-the-most-friends.
+
+  --- Tạo 2 bảng đếm
+with cte_requester_count as (
+select requester_id as id,
+count(requester_id ) as count_num from RequestAccepted 
+group by requester_id 
+),
+cte_accepter_count as (
+select accepter_id  as id,
+count(accepter_id) as count_num from RequestAccepted 
+group by accepter_id 
+)
+  --- union
+select id, sum(count_num) as num from 
+(select * from cte_requester_count
+union
+select * from cte_accepter_count)
+group by id
+order by num desc limit 1
