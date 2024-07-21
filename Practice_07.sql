@@ -61,3 +61,50 @@ END as rolling_avg
 FROM cte_111
 /*=> cách khác nhanh hơn không?*/
 
+
+--- ex6: datalemur-repeated-payments.
+WITH cte_test AS (
+SELECT merchant_id, transaction_timestamp, amount,
+  lag(transaction_timestamp) OVER(PARTITION BY merchant_id, credit_card_id ORDER BY transaction_timestamp) AS transaction_timestamp_2,
+  lag(amount) OVER(PARTITION BY merchant_id, credit_card_id ORDER BY transaction_timestamp) AS amount_2
+FROM transactions
+)
+
+SELECT count(*) FROM cte_test
+WHERE amount = amount_2 AND transaction_timestamp - transaction_timestamp_2 <= '00:10:00'
+
+
+---ex7: datalemur-highest-grossing.
+WITH cte_table AS (
+SELECT category, product, 
+SUM(spend) AS total_spend,
+RANK() OVER(PARTITION BY category ORDER BY SUM(spend) DESC) AS ranking 
+FROM product_spend 
+WHERE EXTRACT(year from transaction_date) = 2022
+GROUP BY category, product
+)
+SELECT category, product, total_spend FROM cte_table
+WHERE ranking < 3
+
+
+---ex8: datalemur-top-fans-rank.
+WITH cte_new_table AS (
+SELECT a.artist_name,
+COUNT(c.rank) AS top10_appear_count
+FROM artists AS a
+JOIN songs AS b ON a.artist_id = b.artist_id
+JOIN global_song_rank  AS c ON c.song_id = b.song_id
+WHERE c.rank <= 10
+GROUP BY a.artist_name
+),
+--- tạo bảng để rank
+cte_2_table AS (
+SELECT artist_name, 
+dense_RANK() OVER(ORDER BY top10_appear_count DESC) AS artist_rank
+FROM cte_new_table
+)
+SELECT * FROM cte_2_table
+WHERE artist_rank <=5
+
+
+
