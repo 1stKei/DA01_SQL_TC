@@ -23,7 +23,19 @@ select month_year, distinct_users,
 round(sum_sale_price/ count_order_id,2) as average_order_value
 from cte_2
 
-
+--- 3. Nhóm khách hàng theo độ tuổi
+--- Tìm khách hàng lớn tuổi nhất 
+select first_name, last_name, gender, age,
+'oldest' as tag
+from bigquery-public-data.thelook_ecommerce.users
+where age =(select max(age) from bigquery-public-data.thelook_ecommerce.users)
+union all
+---Tìm khách hàng lớn trẻ tuổi nhất 
+select first_name, last_name, gender, age,
+'youngest' as tag
+from bigquery-public-data.thelook_ecommerce.users
+where age = (select min(age) from bigquery-public-data.thelook_ecommerce.users)
+ 
 --- 4.Top 5 sản phẩm mỗi tháng.
 with cte_4_1 as (
 select
