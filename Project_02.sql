@@ -47,3 +47,16 @@ dense_rank() over (partition by month_year order by profit) as rank_per_month
 )
 select * from cte_4_2 
 where rank_per_month <=5
+
+
+--- 5.Doanh thu tính đến thời điểm hiện tại trên mỗi danh mục
+select 
+  FORMAT_DATE('%Y-%m-%d', created_at) as dates,
+  products.category as product_categories,
+  sum(order_items.sale_price) as revenue
+
+from bigquery-public-data.thelook_ecommerce.products as products
+join bigquery-public-data.thelook_ecommerce.order_items as order_items on products.id = order_items.product_id
+where order_items.created_at between '2022-01-15' and '2022-04-16'
+group by products.category, FORMAT_DATE('%Y-%m-%d', created_at)
+order by 1
